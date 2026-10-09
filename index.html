@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>StyleSphere — Smart Shopping</title>
+  <link rel="stylesheet" href="css/style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header" id="header">
+    <div class="header-inner container">
+      <a href="#" class="logo" onclick="showPage('home')">
+        <i class="fa-solid fa-circle-half-stroke"></i> StyleSphere
+      </a>
+      <nav class="nav" id="nav">
+        <a href="#" onclick="showPage('home')" class="nav-link active" data-page="home">Home</a>
+        <a href="#" onclick="showPage('shop')" class="nav-link" data-page="shop">Shop</a>
+        <a href="#" onclick="showPage('wishlist')" class="nav-link" data-page="wishlist">Wishlist</a>
+        <a href="#" onclick="showPage('orders')" class="nav-link" data-page="orders">Orders</a>
+      </nav>
+      <div class="header-actions">
+        <div class="search-bar">
+          <input type="text" id="searchInput" placeholder="Search styles…" autocomplete="off"/>
+          <button onclick="handleSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+        <button class="icon-btn" onclick="showPage('wishlist')" title="Wishlist">
+          <i class="fa-solid fa-heart"></i>
+          <span class="badge hidden" id="wishlistCount">0</span>
+        </button>
+        <button class="icon-btn" onclick="openCart()" title="Cart">
+          <i class="fa-solid fa-bag-shopping"></i>
+          <span class="badge hidden" id="cartCount">0</span>
+        </button>
+        <button class="icon-btn" onclick="toggleTheme()" title="Toggle Theme" id="themeToggle">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <!-- Guest buttons -->
+        <div class="auth-area" id="authArea">
+          <button class="btn btn-outline btn-sm" onclick="openAuth('login')">Login</button>
+          <button class="btn btn-primary btn-sm" onclick="openAuth('signup')">Sign Up</button>
+        </div>
+        <!-- Logged-in user menu -->
+        <div class="user-menu hidden" id="userMenu">
+          <button class="user-avatar-btn" onclick="toggleUserDropdown()" id="userAvatarBtn">
+            <div class="user-avatar" id="userAvatarDisplay">JD</div>
+            <span id="userNameDisplay">Hi, User</span>
+            <i class="fa-solid fa-chevron-down" style="font-size:11px;"></i>
+          </button>
+          <div class="user-dropdown hidden" id="userDropdown">
+            <a href="#" onclick="showPage('profile');closeDropdown()"><i class="fa-solid fa-user"></i> My Profile</a>
+            <a href="#" onclick="showPage('orders');closeDropdown()"><i class="fa-solid fa-box-open"></i> My Orders</a>
+            <a href="#" onclick="showPage('wishlist');closeDropdown()"><i class="fa-solid fa-heart"></i> Wishlist</a>
+            <a href="#" onclick="openSizeGuide();closeDropdown()"><i class="fa-solid fa-ruler"></i> Size Guide</a>
+            <div class="dropdown-divider"></div>
+            <a href="#" onclick="logout()" class="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+          </div>
+        </div>
+        <button class="hamburger" id="hamburger" onclick="toggleNav()">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== AUTH MODAL ===== -->
+  <div class="modal-overlay" id="authModal">
+    <div class="modal auth-modal">
+      <button class="modal-close" onclick="closeAuth()"><i class="fa-solid fa-xmark"></i></button>
+      <div class="auth-brand"><i class="fa-solid fa-circle-half-stroke"></i> StyleSphere</div>
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button>
+        <button class="auth-tab" id="signupTab" onclick="switchAuthTab('signup')">Sign Up</button>
+      </div>
+
+      <!-- Login Form -->
+      <div class="auth-form active" id="loginForm">
+        <p class="auth-subtitle">Welcome back! Sign in to continue.</p>
+        <div class="social-btns">
+          <button class="social-btn" onclick="showToast('Google login coming soon!','info')"><i class="fa-brands fa-google"></i> Google</button>
+          <button class="social-btn" onclick="showToast('Facebook login coming soon!','info')"><i class="fa-brands fa-facebook"></i> Facebook</button>
+        </div>
+        <div class="auth-divider"><span>or continue with email</span></div>
+        <div class="form-field">
+          <label>Email Address</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-envelope input-icon"></i>
+            <input type="email" id="loginEmail" placeholder="you@example.com"/>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Password</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input type="password" id="loginPassword" placeholder="••••••••"/>
+            <button class="toggle-pw" type="button" onclick="togglePw('loginPassword',this)"><i class="fa-solid fa-eye"></i></button>
+          </div>
+        </div>
+        <div class="form-row-split">
+          <label class="checkbox-label"><input type="checkbox" id="rememberMe"/> Remember me</label>
+          <a href="#" onclick="showToast('Password reset link sent!','info')" class="forgot-link">Forgot password?</a>
+        </div>
+        <button class="btn btn-primary full-width" onclick="handleLogin()"><i class="fa-solid fa-right-to-bracket"></i> Sign In</button>
+        <p class="auth-switch">Don't have an account? <a href="#" onclick="switchAuthTab('signup')">Sign up free</a></p>
+        <p class="demo-hint">Demo: use <strong>demo@stylesphere.com</strong> / <strong>demo1234</strong></p>
+      </div>
+
+      <!-- Signup Form -->
+      <div class="auth-form" id="signupForm">
+        <p class="auth-subtitle">Create your account — it's free!</p>
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label>First Name</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-user input-icon"></i>
+              <input type="text" id="signupFirst" placeholder="First name"/>
+            </div>
+          </div>
+          <div class="form-field">
+            <label>Last Name</label>
+            <div class="input-icon-wrap">
+              <i class="fa-solid fa-user input-icon"></i>
+              <input type="text" id="signupLast" placeholder="Last name"/>
+            </div>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Email Address</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-envelope input-icon"></i>
+            <input type="email" id="signupEmail" placeholder="you@example.com"/>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Phone Number</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-phone input-icon"></i>
+            <input type="tel" id="signupPhone" placeholder="10-digit mobile number"/>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Password</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input type="password" id="signupPassword" placeholder="Min 8 characters"/>
+            <button class="toggle-pw" type="button" onclick="togglePw('signupPassword',this)"><i class="fa-solid fa-eye"></i></button>
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Confirm Password</label>
+          <div class="input-icon-wrap">
+            <i class="fa-solid fa-lock input-icon"></i>
+            <input type="password" id="signupConfirm" placeholder="Re-enter password"/>
+          </div>
+        </div>
+        <label class="checkbox-label" style="margin-bottom:16px;">
+          <input type="checkbox" id="agreeTerms"/> I agree to the <a href="#">Terms &amp; Privacy Policy</a>
+        </label>
+        <button class="btn btn-primary full-width" onclick="handleSignup()"><i class="fa-solid fa-user-plus"></i> Create Account</button>
+        <p class="auth-switch">Already have an account? <a href="#" onclick="switchAuthTab('login')">Sign in</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== QUICK VIEW MODAL ===== -->
+  <div class="modal-overlay" id="quickViewModal">
+    <div class="modal quick-view-modal">
+      <button class="modal-close" onclick="closeQuickView()"><i class="fa-solid fa-xmark"></i></button>
+      <div id="quickViewContent"></div>
+    </div>
+  </div>
+
+  <!-- ===== SIZE GUIDE MODAL ===== -->
+  <div class="modal-overlay" id="sizeGuideModal">
+    <div class="modal size-guide-modal">
+      <button class="modal-close" onclick="closeSizeGuide()"><i class="fa-solid fa-xmark"></i></button>
+      <h2 style="margin-bottom:20px;"><i class="fa-solid fa-ruler"></i> Size Guide</h2>
+      <div class="sg-tabs">
+        <button class="sg-tab active" onclick="switchSgTab('men',this)">Men</button>
+        <button class="sg-tab" onclick="switchSgTab('women',this)">Women</button>
+        <button class="sg-tab" onclick="switchSgTab('kids',this)">Kids</button>
+      </div>
+      <div id="sizeGuideContent"></div>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- ======= HOME ======= -->
+    <section class="page active" id="page-home">
+
+      <!-- Flash Sale Bar -->
+      <div class="flash-bar">
+        <div class="container flash-inner">
+          <span class="flash-label">⚡ FLASH SALE</span>
+          <span>Up to <strong>70% OFF</strong> — Ends in:</span>
+          <div class="countdown" id="countdown">
+            <div class="cd-block"><span id="cd-h">00</span><small>Hrs</small></div>
+            <span class="cd-sep">:</span>
+            <div class="cd-block"><span id="cd-m">00</span><small>Min</small></div>
+            <span class="cd-sep">:</span>
+            <div class="cd-block"><span id="cd-s">00</span><small>Sec</small></div>
+          </div>
+          <button class="btn btn-light btn-sm" onclick="showPage('shop')">Shop Now</button>
+        </div>
+      </div>
+
+      <!-- Hero -->
+      <div class="hero">
+        <div class="hero-content container">
+          <span class="hero-tag">New Season 2026</span>
+          <h1>Dress Your <span class="gradient-text">Best Self</span></h1>
+          <p>Discover curated fashion that speaks your language. Premium quality, unbeatable style.</p>
+          <div class="hero-btns">
+            <button class="btn btn-primary" onclick="showPage('shop')">Shop Now <i class="fa-solid fa-arrow-right"></i></button>
+            <button class="btn btn-outline" onclick="openSizeGuide()">Size Guide <i class="fa-solid fa-ruler"></i></button>
+          </div>
+          <div class="hero-stats">
+            <div class="stat"><strong>10K+</strong><span>Happy Customers</span></div>
+            <div class="stat"><strong>500+</strong><span>Styles</span></div>
+            <div class="stat"><strong>Free</strong><span>Returns</span></div>
+          </div>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-card card-1"><div class="floating-product" style="background:var(--accent1)"><i class="fa-solid fa-shirt" style="font-size:3rem"></i><p>Casual</p></div></div>
+          <div class="hero-card card-2"><div class="floating-product" style="background:var(--accent2)"><i class="fa-solid fa-vest" style="font-size:3rem"></i><p>Formals</p></div></div>
+          <div class="hero-card card-3"><div class="floating-product" style="background:var(--accent3)"><i class="fa-solid fa-glasses" style="font-size:3rem"></i><p>Accessories</p></div></div>
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="container section">
+        <h2 class="section-title">Shop by Category</h2>
+        <div class="category-grid">
+          <div class="category-card" onclick="filterByCategory('Men')">
+            <div class="cat-icon"><i class="fa-solid fa-person"></i></div>
+            <h3>Men</h3><p>Trending styles for him</p>
+          </div>
+          <div class="category-card" onclick="filterByCategory('Women')">
+            <div class="cat-icon" style="background:var(--accent2)"><i class="fa-solid fa-person-dress"></i></div>
+            <h3>Women</h3><p>Chic &amp; modern fashion</p>
+          </div>
+          <div class="category-card" onclick="filterByCategory('Kids')">
+            <div class="cat-icon" style="background:var(--accent3)"><i class="fa-solid fa-child"></i></div>
+            <h3>Kids</h3><p>Fun &amp; colourful outfits</p>
+          </div>
+          <div class="category-card" onclick="filterByCategory('Accessories')">
+            <div class="cat-icon" style="background:var(--accent4)"><i class="fa-solid fa-glasses"></i></div>
+            <h3>Accessories</h3><p>Complete your look</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Trending -->
+      <div class="container trending-wrap">
+        <span class="trending-label">🔥 Trending:</span>
+        <div class="trending-tags">
+          <button onclick="setSearch('saree')">Saree</button>
+          <button onclick="setSearch('denim')">Denim</button>
+          <button onclick="setSearch('ethnic')">Ethnic</button>
+          <button onclick="setSearch('oversized')">Oversized</button>
+          <button onclick="setSearch('kurti')">Kurti</button>
+          <button onclick="setSearch('sneakers')">Sneakers</button>
+          <button onclick="setSearch('watch')">Watch</button>
+          <button onclick="setSearch('hoodie')">Hoodie</button>
+        </div>
+      </div>
+
+      <!-- Hot Right Now -->
+      <div class="container section">
+        <div class="section-header">
+          <h2 class="section-title">🔥 Hot Right Now</h2>
+          <button class="btn btn-ghost" onclick="showPage('shop')">View All <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+        <div class="products-grid" id="featuredGrid"></div>
+      </div>
+
+      <!-- New Arrivals -->
+      <div class="container section">
+        <div class="section-header">
+          <h2 class="section-title">✨ New Arrivals</h2>
+          <button class="btn btn-ghost" onclick="showPage('shop')">View All <i class="fa-solid fa-arrow-right"></i></button>
+        </div>
+        <div class="products-grid" id="newArrivalsGrid"></div>
+      </div>
+
+      <!-- Recently Viewed -->
+      <div class="container section" id="recentSection" style="display:none">
+        <div class="section-header">
+          <h2 class="section-title">👀 Recently Viewed</h2>
+          <button class="btn btn-ghost" onclick="clearRecentlyViewed()">Clear <i class="fa-solid fa-trash"></i></button>
+        </div>
+        <div class="products-grid" id="recentGrid"></div>
+      </div>
+
+      <!-- Promo Banner -->
+      <div class="promo-banner">
+        <div class="container promo-inner">
+          <div>
+            <h2>Up to <span>50% OFF</span></h2>
+            <p>Use code <strong>STYLE50</strong> at checkout</p>
+          </div>
+          <button class="btn btn-light" onclick="showPage('shop')">Shop the Sale</button>
+        </div>
+      </div>
+
+      <!-- Newsletter -->
+      <div class="newsletter-section">
+        <div class="container newsletter-inner">
+          <div class="newsletter-text">
+            <h2>Stay in Style 💌</h2>
+            <p>Get exclusive deals, new arrivals &amp; fashion tips.</p>
+          </div>
+          <div class="newsletter-form">
+            <input type="email" id="newsletterEmail" placeholder="Enter your email…"/>
+            <button class="btn btn-primary" onclick="subscribeNewsletter()"><i class="fa-solid fa-paper-plane"></i> Subscribe</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= SHOP ======= -->
+    <section class="page" id="page-shop">
+      <div class="container shop-layout">
+        <aside class="filter-sidebar" id="filterSidebar">
+          <div class="filter-header">
+            <h3><i class="fa-solid fa-sliders"></i> Filters</h3>
+            <button class="btn-clear" onclick="clearFilters()">Clear All</button>
+          </div>
+          <div class="filter-group">
+            <h4>Category</h4>
+            <label><input type="radio" name="category" value="All" checked onchange="applyFilters()"/> All</label>
+            <label><input type="radio" name="category" value="Men" onchange="applyFilters()"/> Men</label>
+            <label><input type="radio" name="category" value="Women" onchange="applyFilters()"/> Women</label>
+            <label><input type="radio" name="category" value="Kids" onchange="applyFilters()"/> Kids</label>
+            <label><input type="radio" name="category" value="Accessories" onchange="applyFilters()"/> Accessories</label>
+          </div>
+          <div class="filter-group">
+            <h4>Price Range</h4>
+            <div class="price-inputs">
+              <input type="number" id="minPrice" placeholder="Min ₹" min="0" onchange="applyFilters()"/>
+              <span>–</span>
+              <input type="number" id="maxPrice" placeholder="Max ₹" min="0" onchange="applyFilters()"/>
+            </div>
+          </div>
+          <div class="filter-group">
+            <h4>Rating</h4>
+            <label><input type="radio" name="rating" value="0" checked onchange="applyFilters()"/> All Ratings</label>
+            <label><input type="radio" name="rating" value="4" onchange="applyFilters()"/> ⭐ 4+ Stars</label>
+            <label><input type="radio" name="rating" value="4.5" onchange="applyFilters()"/> ⭐ 4.5+ Stars</label>
+          </div>
+          <div class="filter-group">
+            <h4>Discount</h4>
+            <label><input type="radio" name="discount" value="0" checked onchange="applyFilters()"/> All</label>
+            <label><input type="radio" name="discount" value="10" onchange="applyFilters()"/> 10% &amp; above</label>
+            <label><input type="radio" name="discount" value="20" onchange="applyFilters()"/> 20% &amp; above</label>
+            <label><input type="radio" name="discount" value="30" onchange="applyFilters()"/> 30% &amp; above</label>
+            <label><input type="radio" name="discount" value="50" onchange="applyFilters()"/> 50% &amp; above</label>
+          </div>
+          <div class="filter-group">
+            <h4>Availability</h4>
+            <label><input type="checkbox" id="inStock" onchange="applyFilters()"/> In Stock Only</label>
+          </div>
+        </aside>
+        <div class="products-area">
+          <div class="shop-toolbar">
+            <p id="resultsCount" class="results-count">Loading…</p>
+            <div class="toolbar-right">
+              <button class="filter-toggle-btn" onclick="toggleFilterSidebar()"><i class="fa-solid fa-sliders"></i> Filters</button>
+              <div class="view-toggle">
+                <button class="view-btn active" id="gridViewBtn" onclick="setView('grid')" title="Grid"><i class="fa-solid fa-grip"></i></button>
+                <button class="view-btn" id="listViewBtn" onclick="setView('list')" title="List"><i class="fa-solid fa-list"></i></button>
+              </div>
+              <select id="sortSelect" onchange="applyFilters()">
+                <option value="default">Sort: Featured</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="rating">Top Rated</option>
+                <option value="name-asc">Name: A–Z</option>
+                <option value="newest">Newest First</option>
+                <option value="discount">Biggest Discount</option>
+              </select>
+            </div>
+          </div>
+          <div class="products-grid" id="shopGrid"></div>
+          <div id="noResults" class="no-results hidden">
+            <i class="fa-solid fa-face-sad-tear"></i>
+            <h3>No products found</h3>
+            <p>Try adjusting your filters or search term.</p>
+            <button class="btn btn-primary" onclick="clearFilters()">Clear Filters</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= WISHLIST ======= -->
+    <section class="page" id="page-wishlist">
+      <div class="container section">
+        <h2 class="section-title"><i class="fa-solid fa-heart"></i> My Wishlist</h2>
+        <div class="products-grid" id="wishlistGrid"></div>
+        <div id="emptyWishlist" class="empty-state hidden">
+          <i class="fa-solid fa-heart-crack"></i>
+          <h3>Your wishlist is empty</h3>
+          <p>Save items you love by clicking the ❤️ icon.</p>
+          <button class="btn btn-primary" onclick="showPage('shop')">Start Shopping</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= ORDERS ======= -->
+    <section class="page" id="page-orders">
+      <div class="container section">
+        <h2 class="section-title"><i class="fa-solid fa-box-open"></i> Order History</h2>
+        <div id="ordersList"></div>
+        <div id="emptyOrders" class="empty-state hidden">
+          <i class="fa-solid fa-receipt"></i>
+          <h3>No orders yet</h3>
+          <p>Your order history will appear here after checkout.</p>
+          <button class="btn btn-primary" onclick="showPage('shop')">Shop Now</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= PROFILE ======= -->
+    <section class="page" id="page-profile">
+      <div class="container section">
+        <h2 class="section-title"><i class="fa-solid fa-user-circle"></i> My Profile</h2>
+        <div class="profile-layout">
+          <div class="profile-sidebar-card">
+            <div class="profile-avatar-large" id="profileAvatarLarge">JD</div>
+            <h3 id="profileNameLarge">John Doe</h3>
+            <p id="profileEmailLarge" style="color:var(--text-muted);font-size:14px;">john@example.com</p>
+            <div class="profile-stats">
+              <div><strong id="pStatOrders">0</strong><span>Orders</span></div>
+              <div><strong id="pStatWish">0</strong><span>Wishlist</span></div>
+              <div><strong>30</strong><span>Day Returns</span></div>
+            </div>
+            <button class="btn btn-outline full-width" style="margin-top:16px;" onclick="logout()">
+              <i class="fa-solid fa-right-from-bracket"></i> Logout
+            </button>
+          </div>
+          <div class="profile-main">
+            <div class="form-card">
+              <h3><i class="fa-solid fa-pen-to-square"></i> Personal Information</h3>
+              <div class="form-grid">
+                <input type="text" id="pf-first" placeholder="First Name"/>
+                <input type="text" id="pf-last" placeholder="Last Name"/>
+                <input type="email" id="pf-email" placeholder="Email" class="span2" readonly/>
+                <input type="tel" id="pf-phone" placeholder="Phone Number" class="span2"/>
+              </div>
+              <button class="btn btn-primary" onclick="saveProfile()" style="margin-top:16px;">
+                <i class="fa-solid fa-floppy-disk"></i> Save Changes
+              </button>
+            </div>
+            <div class="form-card">
+              <h3><i class="fa-solid fa-location-dot"></i> Default Address</h3>
+              <div class="form-grid">
+                <input type="text" id="pf-address" placeholder="Street Address" class="span2"/>
+                <input type="text" id="pf-city" placeholder="City"/>
+                <input type="text" id="pf-pin" placeholder="PIN Code"/>
+                <input type="text" id="pf-state" placeholder="State" class="span2"/>
+              </div>
+              <button class="btn btn-outline" onclick="saveAddress()" style="margin-top:16px;">
+                <i class="fa-solid fa-floppy-disk"></i> Save Address
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======= PRODUCT DETAIL ======= -->
+    <section class="page" id="page-detail">
+      <div class="container detail-layout">
+        <div class="breadcrumb" id="detailBreadcrumb"></div>
+        <div class="detail-inner" id="detailContent"></div>
+        <div class="reviews-section" id="reviewsSection"></div>
+        <div class="related-section" id="relatedSection"></div>
+      </div>
+    </section>
+
+    <!-- ======= CHECKOUT ======= -->
+    <section class="page" id="page-checkout">
+      <div class="container checkout-layout">
+        <h2 class="section-title"><i class="fa-solid fa-credit-card"></i> Checkout</h2>
+        <div class="checkout-progress">
+          <div class="cp-step done"><span>1</span> Cart</div>
+          <div class="cp-line done"></div>
+          <div class="cp-step active"><span>2</span> Details</div>
+          <div class="cp-line"></div>
+          <div class="cp-step"><span>3</span> Payment</div>
+          <div class="cp-line"></div>
+          <div class="cp-step"><span>4</span> Confirm</div>
+        </div>
+        <div class="checkout-grid">
+          <div class="checkout-form-area">
+            <div class="form-card">
+              <h3><i class="fa-solid fa-location-dot"></i> Delivery Address</h3>
+              <div class="form-grid">
+                <input type="text" id="co-name" placeholder="Full Name" required/>
+                <input type="text" id="co-phone" placeholder="Phone Number" required/>
+                <input type="email" id="co-email" placeholder="Email Address" required class="span2"/>
+                <input type="text" id="co-address" placeholder="Street Address" required class="span2"/>
+                <input type="text" id="co-city" placeholder="City" required/>
+                <input type="text" id="co-pin" placeholder="PIN Code" required/>
+                <input type="text" id="co-state" placeholder="State" required class="span2"/>
+              </div>
+            </div>
+            <div class="form-card">
+              <h3><i class="fa-solid fa-credit-card"></i> Payment Method</h3>
+              <div class="payment-options">
+                <label class="payment-opt selected"><input type="radio" name="payment" value="upi" checked/><i class="fa-solid fa-mobile-screen-button"></i> UPI</label>
+                <label class="payment-opt"><input type="radio" name="payment" value="card"/><i class="fa-solid fa-credit-card"></i> Card</label>
+                <label class="payment-opt"><input type="radio" name="payment" value="cod"/><i class="fa-solid fa-money-bill-wave"></i> COD</label>
+                <label class="payment-opt"><input type="radio" name="payment" value="netbanking"/><i class="fa-solid fa-building-columns"></i> Net Banking</label>
+              </div>
+            </div>
+          </div>
+          <div class="order-summary-card">
+            <h3><i class="fa-solid fa-receipt"></i> Order Summary</h3>
+            <div id="checkoutItems"></div>
+            <div class="divider"></div>
+            <div class="coupon-row">
+              <input type="text" id="couponInput" placeholder="Enter coupon code"/>
+              <button class="btn btn-outline" onclick="applyCoupon()">Apply</button>
+            </div>
+            <div id="couponMsg" class="coupon-msg"></div>
+            <div class="coupon-hints">
+              Try: <a href="#" onclick="autofillCoupon('STYLE50')">STYLE50</a> · <a href="#" onclick="autofillCoupon('FLAT200')">FLAT200</a> · <a href="#" onclick="autofillCoupon('SHIP0')">SHIP0</a>
+            </div>
+            <div class="price-summary" id="priceSummary"></div>
+            <button class="btn btn-primary full-width" onclick="placeOrder()">
+              <i class="fa-solid fa-check-circle"></i> Place Order
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===== CART DRAWER ===== -->
+  <div class="overlay" id="overlay" onclick="handleOverlayClick()"></div>
+  <div class="cart-drawer" id="cartDrawer">
+    <div class="cart-header">
+      <h3><i class="fa-solid fa-bag-shopping"></i> My Cart</h3>
+      <button onclick="closeCart()" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="cart-body" id="cartItems"></div>
+    <div class="cart-footer" id="cartFooter"></div>
+  </div>
+
+  <!-- ===== ORDER SUCCESS MODAL ===== -->
+  <div class="modal-overlay" id="successModal">
+    <div class="modal success-modal">
+      <div class="success-icon"><i class="fa-solid fa-circle-check"></i></div>
+      <h2>Order Placed! 🎉</h2>
+      <p id="successOrderId"></p>
+      <p>Your items will be delivered in <strong>3–5 business days</strong>.</p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" onclick="closeSuccessModal()">Continue Shopping</button>
+        <button class="btn btn-outline" onclick="viewOrders()">View Orders</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast-container" id="toastContainer"></div>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <a href="#" class="logo" onclick="showPage('home')"><i class="fa-solid fa-circle-half-stroke"></i> StyleSphere</a>
+        <p>Fashion that defines you.</p>
+        <div class="footer-social">
+          <a href="#"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#"><i class="fa-brands fa-facebook"></i></a>
+          <a href="#"><i class="fa-brands fa-x-twitter"></i></a>
+          <a href="#"><i class="fa-brands fa-youtube"></i></a>
+          <a href="#"><i class="fa-brands fa-pinterest"></i></a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <div>
+          <h4>Shop</h4>
+          <a href="#" onclick="filterByCategory('Men')">Men</a>
+          <a href="#" onclick="filterByCategory('Women')">Women</a>
+          <a href="#" onclick="filterByCategory('Kids')">Kids</a>
+          <a href="#" onclick="filterByCategory('Accessories')">Accessories</a>
+        </div>
+        <div>
+          <h4>Help</h4>
+          <a href="#" onclick="openSizeGuide()">Size Guide</a>
+          <a href="#">Returns</a>
+          <a href="#">Shipping Info</a>
+          <a href="#">FAQ</a>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <a href="#">About Us</a>
+          <a href="#">Careers</a>
+          <a href="#">Blog</a>
+          <a href="#">Contact</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 StyleSphere. All rights reserved. Made with ❤️ in India</p>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
